@@ -16,11 +16,11 @@ class Event:
         self._event_type = fields[3]
         termini = extract_termini(fields[4])
         self._t1_chrom = termini[0][0]
-        self._t1_start = termini[0][1]
-        self._t1_end = termini[0][2]
+        self._t1_start = int(termini[0][1])
+        self._t1_end = int(termini[0][2])
         self._t2_chrom = termini[1][0]
-        self._t2_start = termini[1][1]
-        self._t2_end = termini[1][2]
+        self._t2_start = int(termini[1][1])
+        self._t2_end = int(termini[1][2])
 
 
 class EventCluster:
@@ -43,14 +43,14 @@ class EventCluster:
         if event._t2_chrom != self._t2_chrom:
             return False
 
-        if event._t1_start > event._t1_end:
+        if event._t1_start > self._t1_end:
             return False
-        if event._t1_end < event._t1_start:
+        if event._t1_end < self._t1_start:
             return False
 
-        if event._t2_start > event._t2_end:
+        if event._t2_start > self._t2_end:
             return False
-        if event._t2_end < event._t2_start:
+        if event._t2_end < self._t2_start:
             return False
 
         return True
@@ -88,6 +88,6 @@ def process(events_filename="all_events.txt", output1="events.txt", output2="eve
             assigned_cluster = EventCluster(event)
             event_clusters.append(assigned_cluster)
 
-    import pdb; pdb.set_trace()
-
+    for cluster in event_clusters:
+        line = "" % cluster._t1_chrom # XXX CONTINUE HERE
     print(event_clusters)
