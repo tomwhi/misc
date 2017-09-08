@@ -22,6 +22,18 @@ class Event:
         self._t2_start = int(termini[1][1])
         self._t2_end = int(termini[1][2])
 
+    def to_string(self):
+        return "%s_%s_%s_%s_%s:%d-%d_%s:%d-%d" % (self._patient_id,
+                                                  self._sample_type,
+                                                  self._sample_id,
+                                                  self._event_type,
+                                                  self._t1_chrom,
+                                                  self._t1_start,
+                                                  self._t1_end,
+                                                  self._t2_chrom,
+                                                  self._t2_start,
+                                                  self._t2_end)
+
 
 class EventCluster:
     def __init__(self, event):
@@ -33,6 +45,15 @@ class EventCluster:
         self._t2_end = event._t2_end
         self._event_type = event._event_type
         self.events = [event]
+
+    def get_key(self):
+        return "%s_%s:%d-%d_%s:%d-%d" % (self._event_type,
+                                         self._t1_chrom,
+                                         self._t1_start,
+                                         self._t1_end,
+                                         self._t2_chrom,
+                                         self._t2_start,
+                                         self._t2_end)
 
     def overlap(self, event):
         if event._event_type != self._event_type:
@@ -74,7 +95,7 @@ class EventCluster:
 
 @begin.start(auto_convert=True)
 def process(events_filename="all_events.txt", output1="events.txt", output2="events.json"):
-    events = [Event(line.strip().split()) for line in open("all_events.txt").readlines()]
+    events = [Event(line.strip().split()) for line in open(events_filename).readlines()]
 
     event_clusters = []
     for event in events:
@@ -88,6 +109,9 @@ def process(events_filename="all_events.txt", output1="events.txt", output2="eve
             assigned_cluster = EventCluster(event)
             event_clusters.append(assigned_cluster)
 
-    for cluster in event_clusters:
-        line = "" % cluster._t1_chrom # XXX CONTINUE HERE
-    print(event_clusters)
+    with open(output1, 'w') as out1:
+        for cluster in event_clusters:
+            event_strs = [event.to_string() for event in cluster.events]
+            event_str = " ".join(event_strs)
+            line = "%s # %s" % (cluster.get_key(), event_str)
+            print(line, file=out1)
