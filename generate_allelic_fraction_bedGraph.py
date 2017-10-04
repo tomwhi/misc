@@ -24,5 +24,5 @@ def extract_somatic_afs(vcf_filename, output="output.bedGraph"):
     with open(output, 'w') as output_file:
         for record in vcf_reader:
             tumor_genotype = record.genotype(non_normal_sample)
-            allelic_fraction = tumor_genotype.data.AO/tumor_genotype.data.DP
+            allelic_fraction = (tumor_genotype.data.AO + 1)/(tumor_genotype.data.DP + 1)
             print("%s\t%d\t%d\t%1.3f" % (record.CHROM, record.POS, record.POS, allelic_fraction), file=output_file)
